@@ -5,11 +5,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "fetch": "^1.1.0",
+    "fs": "^0.0.1-security",
+    "ipp": "^1.1.0",
+    "node-fetch": "^3.3.2",
     "ws": "^8.18.0"
   }
 }
