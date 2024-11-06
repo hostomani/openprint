@@ -3,13 +3,33 @@ import fetch from 'node-fetch';
 import fs from 'fs'
 import { exec } from 'child_process';
 import path from 'path';
+import os from 'os';
 
-const OPEN_PRINT_HTTP_SERVER_URL = 'http://localhost:3000';
-const OPEN_PRINT_WS_SERVER_URL = 'ws://localhost:3000';
+function getMacAddress() {
+    const networkInterfaces = os.networkInterfaces();
+    
+    for (const interfaceName in networkInterfaces) {
+        const interfaces = networkInterfaces[interfaceName];
+        
+        for (const iface of interfaces) {
+            // Look for the first non-internal (not localhost) IPv4 interface
+            if (!iface.internal && iface.family === 'IPv4' && iface.mac) {
+                return iface.mac;
+            }
+        }
+    }
+
+    return null; // No MAC address found
+}
+
+
+const OPEN_PRINT_HTTP_SERVER_URL = 'http://185.211.5.203:3000/';
+const OPEN_PRINT_WS_SERVER_URL = 'ws://185.211.5.203:3000/';
 
 class OpenPrintClient {
     constructor() {
         const self = this;
+        self.macAddress = getMacAddress();
         self.connect()
     }
 
@@ -80,12 +100,13 @@ class OpenPrintClient {
             // Send printer information via WebSocket
             const printers = stdout.split('\n').filter(line => line.trim() !== '');
             printersInfo = {
-                // client_id: self.id,
+                client_id: self.macAddress,
                 printers: {}
             };
             for (const printer of printers) {
                 printersInfo.printers[printer.trim().split(': ')[0].split(' ').slice(-1)] = printer.trim().split(': ')[1]
             }
+            
             console.log(printersInfo)
             console.log('sending printersInfo')
             if(self.connection.OPEN){
